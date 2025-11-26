@@ -1,39 +1,36 @@
-# Printing to the console
-
-print("Hello World")
-print("Text (This) and Number ->", 123)
-print(2^4)
-
-print("\nMulti\nline\nprint\n") # \n in the start/end for padding among other prints
+number = 12
+if number % 2 == 1:
+    print("Odd")
+else:
+    print("Even")
 
 
-### String methods / operations
-# concatenation
-name = "World"
-print("Hello " + name + "!")
-# length
-print("Name Length:", len(name))
-# slicing
-print("Name First Letter:", name[0])
-print("Bizzare way to get Names First Letter:", name[-len(name)]) # |-index| and |index| can not be greater than len(name) = error
-print("Name Last Letter:", name[-1])
-print("Maybe this works as reverse?", name[-1: -len(name)]) # NOPE it doesnt
-print("Piece of name:", name[1: 3]) # get characters 2 and 3
-# so called "f-strings" (I'd call them template strings)
-print(f'The name "{name}" consists of {len(name)} characters')
+# Improved BMI (Body Mass Index)
+weight = float(input("Weight (kg): "))
+height = float(input("Height (m): "))
+bmi = weight / (height ** 2)
 
-# user input (using console)
-# input always returns string (text)
-username = input("Username?")
-actionId = int(input(f"{username}, what actionId shall run?"))
-print(f"*The {actionId} was executed, actionId pow2 is {actionId*actionId}*")
+if bmi < 18.5:
+    status = "Underweight"
+elif bmi < 25:
+    status = "Normal"
+elif bmi < 30:
+    status = "Overweight"
+elif bmi < 43: 
+    status = "Obese"
+else:
+    status = "Obese Class III"
 
-### assign and reassign
-# number/int
-number = 300
-number += actionId # essentially the same as:
-# number = number + actionId
-print(f"number + actionId sum: {number}")
-# strings / booleans
-color = "red"
-is_cool = True # use snake_case in python, although I hate it
+print(f'Your BMI is {round(bmi, 1)} "{status}"')
+
+
+
+# operators: and, or, not
+if height >= 100 and weight >= 100:
+    print("Height and Weight are more or equal to 100")
+elif height >= 100 or weight >= 100:
+    print("Height or Weight is more or equal to 100")
+if height < 100 and weight < 100: # using not for more/less comparisons is the same as flipping (e.g. ">=" flips to "<")
+    print("Neither Height, nor Weight are more or equal to 100")
+elif height < 100 or weight < 100:
+    print("Height or Width is smaller than 100")
