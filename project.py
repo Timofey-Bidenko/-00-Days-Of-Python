@@ -1,114 +1,123 @@
-# PASSWORD GENERATOR
-import random
+# Simulate maze escape
+# " " - walkable path; "#" - wall
+# "S"/"E" - start/end
+# 
+# orientation Enum represented as an integer (named direction):
+# 0 = up
+# 1 = right
+# 2 = down
+# 3 = left
 
-print("Welcome to the password generator!")
-print("Tip: Special characters are considered anything that isn't an english letter or a number 0 to 9")
+maze = [
+    list("##########"),
+    list("#S #     #"),
+    list("#  # ### #"),
+    list("#  # #   #"),
+    list("#  ### # #"),
+    list("#      # #"),
+    list("###### # #"),
+    list("#    # # #"),
+    list("# ##   #E#"),
+    list("##########"),
+]
 
+direction = 2 # facing down by default
+operations = 0
+maze_complete = False
+x, y = 0, 0
 
+direction_forward = [
+    (0, -1), # index = 0 -> facing up
+    (1, 0), # index = 1 -> facing right
+    (0, 1), # index = 2 -> facing down
+    (-1, 0), # index = 3 -> facing left
+]
+direction_right = [
+    (1, 0), # facing up, right tile relative to current pos is offset by -1 on x axis
+    (0, 1), # similar here and following
+    (-1, 0), 
+    (0, -1),
+]
+direction_string = ["⬆️","➡️","⬇️","⬅️"]
 
-total_password_length = input("\n\n(Leave this blank for advanced setup)\nHow long do you want your password to be?\n").strip()
-use_advanced_setup = total_password_length == ""
+def turn_right():
+    global operations, direction
+    operations += 1
+    direction = (direction + 1) % 4
+def turn_left():
+    global operations, direction
+    operations += 1
+    direction = (direction - 1) % 4
+def move_forward():
+    global operations, x, y, maze_complete
+    new_x = x + direction_forward[direction][0]
+    new_y = y + direction_forward[direction][1]
 
-amount_letters = 0
-amount_numbers = 0
-amount_symbols = 0
+    wall_in_front = False
+    if new_y > len(maze) or new_y < 0: # out of bounds - cosider a wall
+        wall_in_front = True
+    if not wall_in_front:
+        if new_x > len(maze[new_y]) or new_x < 0: # out of bounds - cosider a wall
+            wall_in_front = True
+    if not wall_in_front:
+        wall_in_front = maze[new_y][new_x] == "#"
+    
+    if wall_in_front:
+        return False
+    
+    operations += 1
+    x, y = new_x, new_y
+    if maze[new_y][new_x] == "E":
+        maze_complete = True
+    return True
+def get_right_tile():
+    global x, y
 
-if use_advanced_setup:
-    amount_letters = int(input("How many letters? "))
-    amount_numbers = int(input("How many numbers? "))
-    amount_symbols = int(input("How many special characters? "))
-    total_password_length = amount_letters + amount_numbers + amount_symbols
+    right_tile_x = x + direction_right[direction][0]
+    right_tile_y = y + direction_right[direction][1]
+
+    if right_tile_y > len(maze) or right_tile_y < 0: # out of bounds - consider a wall
+        return "#"
+    if right_tile_x > len(maze[right_tile_y]) or right_tile_x < 0: # out of bounds - consider a wall
+        return "#"
+    return maze[right_tile_y][right_tile_x]
+
+# define starting position
+for row in range(len(maze)):
+    for column in range(len(maze[row])):
+        if maze[row][column] == "S":
+            x, y = column, row
+            break
+
+while not maze_complete and operations < 1e6: # limit up to 1 million operations (1e6 = 1000000 = Million)
+    # if there's a wall to the right, move forward
+    # if moving forward isn't an option, turn right
+    # if there's no wall to the right, keep turning right
+
+    wall_on_right = get_right_tile() == "#"
+    forward_success = True
+
+    #print(wall_on_right, x, y, direction)
+    if wall_on_right:
+        forward_success = move_forward() # False means moving forward didn't happen because there's a wall!
+        if not (get_right_tile() == "#"):
+            turn_right()
+            move_forward()
+    if not wall_on_right or not forward_success:
+        turn_right()
+
+    # print the maze
+    print(operations)
+    for row in range(len(maze)):
+        row_string = ""
+        for column in range(len(maze[row])):
+            if column == x and row == y:
+                row_string += " " + direction_string[direction] + " "
+                continue
+            row_string += " " + maze[row][column] + " "
+        print(row_string)
+    print("\n\n\n")
+if maze_complete:
+    print(f"Maze complete after {operations} steps")
 else:
-    total_password_length = int(total_password_length)
-    total_available_characters = total_password_length
-
-    if total_available_characters > 1:
-        amount_letters = random.randint(1, total_available_characters)
-        total_available_characters -= amount_letters
-
-        if total_available_characters > 1:
-            amount_numbers = random.randint(1, total_available_characters)
-            total_available_characters -= amount_numbers
-
-            amount_symbols = total_available_characters
-        elif total_available_characters > 0:
-            random_character_type = random.choice(["n", "s"])
-            if random_character_type == "n":
-                amount_numbers = 1
-            elif random_character_type == "s":
-                amount_symbols = 1
-    else:
-        random_character_type = random.choice(["l", "n", "s"])
-        if random_character_type == "l":
-            amount_letters = 1
-        elif random_character_type == "n":
-            amount_numbers = 1
-        elif random_character_type == "s":
-            amount_symbols = 1
-
-print(f"Final password will consist of:\n\t- {amount_letters} english letter(s) (uppercase/lowercase)\n\t- {amount_numbers} number(s) (0-9)\n\t- {amount_symbols} special character(s) (your input)")
-if not use_advanced_setup:
-    print("Tip: You can restart and use advanced setup to set these amounts manually\n")
-
-
-
-letters = list("abcdefghigklmnopqrstuvwxyz" + "abcdefghigklmnopqrstuvwxyz".upper())
-numbers = list("0123456789")
-# this is how I got the utf codes
-#for l in letters:
-#    print(l, ord(l))
-#for n in numbers:
-#    print(n, ord(n))
-
-symbols = []
-if amount_symbols > 0:
-    symbols_input = list(input("Want to use any special characters? Maybe a different language, spaces, brackets, underscores, hashtags, etc? Write all special characters you would like to use here: "))
-    print(len(symbols_input))
-    
-    for symbol in symbols_input:
-        utf_code = ord(symbol)
-
-        # prevent counting default characters as special; skip them
-        if utf_code >= 65 and utf_code <= 90: # it's an uppercase english letter
-            continue
-        if utf_code >= 97 and utf_code <= 122: # it's a lowercase english letter
-            continue
-        if utf_code >= 48 and utf_code <= 57: # it's a number 0 to 9
-            continue
-        
-        # I don't know how to do table.find, so here's my own O(n) implementation
-        # so if a special character is already in use, we'll skip it as well
-        symbol_already_in_use = False
-        for used_symbol in symbols:
-            if used_symbol == symbol:
-                symbol_already_in_use = True
-                break
-        if symbol_already_in_use:
-            continue
-
-        symbols.append(symbol)
-        
-
-result = ""
-
-for i in range(total_password_length):
-    choices = []
-    if amount_letters > 0:
-        choices.append("l") # l = letters
-    if amount_numbers > 0:
-        choices.append("n") # n = number
-    if amount_symbols > 0 and len(symbols) > 0:
-        choices.append("s") # s = symbol
-    
-    chosen_type = random.choice(choices)
-    if chosen_type == "l":
-        amount_letters -= 1
-        result += random.choice(letters)
-    elif chosen_type == "n":
-        amount_numbers -= 1
-        result += random.choice(numbers)
-    elif chosen_type == "s":
-        amount_symbols -= 1
-        result += random.choice(symbols)
-
-print(f"Here's a password for you! {total_password_length} characters long.\n\n{result}\n\nHave a nice day!")
+    print(f"Step limit of {operations} reached; Maze was not solved.")

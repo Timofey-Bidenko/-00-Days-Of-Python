@@ -4,9 +4,9 @@ Days 1-3 are available on separate branches.
 
 Now, I'll be overwriting master daily.
 
-Day 5
-- how for loops work for arrays
-- how range works and is a separate class, doesn't produce an array like I thought it would
+Day 6
+It was quite challenging!
 
-nothing much more there, but the project today was interesting...
-I did spend quite some time developing the password generator, as I am limiting myself to use only what I've learned to this point of the challenge. Looks like it's still quite optimized, only need to use dictionary for checking if a character is already in use instead of doing O(n) searches each iteration. I didn't "learn" what dictionaries are from this challenge yet, so I'll keep it as is.
+Now that I unlocked functions and while loops, almost anything is possible, can't wait to "learn" about dictionaries! I also learned that tuples are defined using "()" instead of "[]" like arrays. I also learned the 1eN method and the fact that multiline comments are only possible in form of unassigned string literals using """multiline comment here""".
+
+Simulating maze escape was the challenging part, I tested many solutions and did a lot of debugging with the use of print, at first I messed up direction_right - it was inverted for up&down directions, then the movement algorithm was almost there, but stuck in a loop at one point, so I had to add a turn forward, whenever after moving forward the right was free.
