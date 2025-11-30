@@ -1,123 +1,92 @@
-# Simulate maze escape
-# " " - walkable path; "#" - wall
-# "S"/"E" - start/end
-# 
-# orientation Enum represented as an integer (named direction):
-# 0 = up
-# 1 = right
-# 2 = down
-# 3 = left
+#   Hangman!
+"""
+first of all we must describe our goal/task with all the challenging parts solved using just words and thinking ahead; Making this a multiline comment (unassigned literal string)
 
-maze = [
-    list("##########"),
-    list("#S #     #"),
-    list("#  # ### #"),
-    list("#  # #   #"),
-    list("#  ### # #"),
-    list("#      # #"),
-    list("###### # #"),
-    list("#    # # #"),
-    list("# ##   #E#"),
-    list("##########"),
+1. Pick a random word
+2. Create blanks e.g.: _ _ _ _ _ _
+3. while playing do input("Guess a letter") save a guessed letter and make sure it can't be used later on; playing = failed_guesses < 3 and blanks > 0
+3_1.    If guess is correct -> yay
+3_2.    Otherwise failed_guesses+=1
+4. while has ended; if failed_guesses >= 3: "You lost!" else: "Winner"
+"""
+
+import random
+
+stages = [
+    "  +---+\n  |   |\n  O   |\n /|\\  |\n / \\  |\n      |\n=========",
+    "  +---+\n  |   |\n  O   |\n /|\\  |\n /    |\n      |\n=========",
+    "  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n=========",
+    "  +---+\n  |   |\n  O   |\n /|   |\n      |\n      |\n=========",
+    "  +---+\n  |   |\n  O   |\n  |   |\n      |\n      |\n=========",
+    "  +---+\n  |   |\n  O   |\n      |\n      |\n      |\n=========",
+    "  +---+\n  |   |\n      |\n      |\n      |\n      |\n=========",
+    "  +---+\n      |\n      |\n      |\n      |\n      |\n=========",
 ]
 
-direction = 2 # facing down by default
-operations = 0
-maze_complete = False
-x, y = 0, 0
 
-direction_forward = [
-    (0, -1), # index = 0 -> facing up
-    (1, 0), # index = 1 -> facing right
-    (0, 1), # index = 2 -> facing down
-    (-1, 0), # index = 3 -> facing left
-]
-direction_right = [
-    (1, 0), # facing up, right tile relative to current pos is offset by -1 on x axis
-    (0, 1), # similar here and following
-    (-1, 0), 
-    (0, -1),
-]
-direction_string = ["⬆️","➡️","⬇️","⬅️"]
+words = ["rock", "block", "hotdog", "burger", "pencil", "pen", "ruler", "book", "laptop", "water", "fire", "flame", "lava", "light", "ice", "smoke", "gas", "floor", "ceiling", "subject", "script", "line", "function", "word", "indentation", "sequence", "algorithm", "loop", "apple", "simple", "fast", "complicated", "slow", "big", "small", "cool", "lame", "lime", "lemon", "energy", "velocity", "turn", "text", "number", "true", "false", "raw", "cooked", "seasoned", "steak", "pepper", "lock", "work", "game", "life", "mine", "snake", "purple", "white", "yellow", "green", "blue", "pink", "black", "gray", "red", "orange", "cyan", "rainbow", "rain", "drop", "perfect", "long"]
 
-def turn_right():
-    global operations, direction
-    operations += 1
-    direction = (direction + 1) % 4
-def turn_left():
-    global operations, direction
-    operations += 1
-    direction = (direction - 1) % 4
-def move_forward():
-    global operations, x, y, maze_complete
-    new_x = x + direction_forward[direction][0]
-    new_y = y + direction_forward[direction][1]
+word = random.choice(words)
+print(word)
+guessed = ["_"]*len(word) # must use array, because "_"*len(word) works, but we can't assing to strings (can't do string[index] = value)
 
-    wall_in_front = False
-    if new_y > len(maze) or new_y < 0: # out of bounds - cosider a wall
-        wall_in_front = True
-    if not wall_in_front:
-        if new_x > len(maze[new_y]) or new_x < 0: # out of bounds - cosider a wall
-            wall_in_front = True
-    if not wall_in_front:
-        wall_in_front = maze[new_y][new_x] == "#"
+used_letters = []
+allowed_lowercase_letters = list("abcdefghijklmnopqrstuvwxyz")
+failed_guesses = 0
+max_failed_guesses = len(stages) - 1
+blanks = len(word)
+
+print(f"The word is {len(word)} letters long!\n\n\n{"".join(guessed)}")
+
+while failed_guesses < max_failed_guesses and blanks > 0:
+    if len(used_letters) > 0:
+        print(f"\n\nAlready used letters: {", ".join(used_letters)};")
     
-    if wall_in_front:
-        return False
-    
-    operations += 1
-    x, y = new_x, new_y
-    if maze[new_y][new_x] == "E":
-        maze_complete = True
-    return True
-def get_right_tile():
-    global x, y
+    guess = input("Guess a letter! ").lower().strip()
+    if guess == "":
+        print("Your input was empty")
+        continue
+    guess = guess[0]
 
-    right_tile_x = x + direction_right[direction][0]
-    right_tile_y = y + direction_right[direction][1]
-
-    if right_tile_y > len(maze) or right_tile_y < 0: # out of bounds - consider a wall
-        return "#"
-    if right_tile_x > len(maze[right_tile_y]) or right_tile_x < 0: # out of bounds - consider a wall
-        return "#"
-    return maze[right_tile_y][right_tile_x]
-
-# define starting position
-for row in range(len(maze)):
-    for column in range(len(maze[row])):
-        if maze[row][column] == "S":
-            x, y = column, row
+    guess_is_valid = False
+    for allowed_lowercase_letter in allowed_lowercase_letters:
+        if allowed_lowercase_letter == guess:
+            guess_is_valid = True
             break
+    if not guess_is_valid:
+        print(f'Character "{guess}", is invalid; Your guess must be an english letter!')
+        continue
 
-while not maze_complete and operations < 1e6: # limit up to 1 million operations (1e6 = 1000000 = Million)
-    # if there's a wall to the right, move forward
-    # if moving forward isn't an option, turn right
-    # if there's no wall to the right, keep turning right
 
-    wall_on_right = get_right_tile() == "#"
-    forward_success = True
 
-    #print(wall_on_right, x, y, direction)
-    if wall_on_right:
-        forward_success = move_forward() # False means moving forward didn't happen because there's a wall!
-        if not (get_right_tile() == "#"):
-            turn_right()
-            move_forward()
-    if not wall_on_right or not forward_success:
-        turn_right()
+    guess_already_used = False
+    for used_letter in used_letters:
+        if used_letter == guess:
+            guess_already_used = True
+            break
+    if guess_already_used:
+        print(f'Letter "{guess}", was already used')
+        continue
+    used_letters.append(guess)
 
-    # print the maze
-    print(operations)
-    for row in range(len(maze)):
-        row_string = ""
-        for column in range(len(maze[row])):
-            if column == x and row == y:
-                row_string += " " + direction_string[direction] + " "
-                continue
-            row_string += " " + maze[row][column] + " "
-        print(row_string)
-    print("\n\n\n")
-if maze_complete:
-    print(f"Maze complete after {operations} steps")
+
+
+    guess_failed = True
+    for i in range(len(word)):
+        if guess == word[i]:
+            guess_failed = False
+            guessed[i] = guess
+            blanks -= 1
+
+    if guess_failed:
+        print("Guessed wrong!")
+        failed_guesses += 1
+    
+    print("".join(guessed))
+    print(stages[max_failed_guesses-failed_guesses])
+        
+
+if failed_guesses >= max_failed_guesses:
+    print(f'You lost! The word was "{word}"')
 else:
-    print(f"Step limit of {operations} reached; Maze was not solved.")
+    print(f"Word guessed!")
