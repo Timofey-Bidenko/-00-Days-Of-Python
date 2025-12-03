@@ -1,38 +1,72 @@
-# so I was supposed to use a dictionary and then find the max bid
-# however it's really much simpler to keep track of the last bid and name
-# at first I though of using kv pairs of [bidAmount] = name and a list
-# with all bidAmounts, and do bids[str(max(list))] to get the winner
-# but since each bid is always bigger than the previous one, just override.
+# calc
+def add(a, b):
+    return a + b
 
-last_name = ""
-last_bid = 0
-bidding_finished = False
+def subtract(a, b):
+    return a - b
 
-def bid_with_name(name):
-    global last_name, last_bid
-    price = int(input("Your bid: $"))
+def multiply(a, b):
+    return a * b
 
-    if price <= last_bid:
-        print(f"Can't bid lower or equal to max bid")
-        bid_with_name(name)
+def divide(a, b):
+    return a / b
+
+operators = {
+    "+": add,
+    "-": subtract,
+    "*": multiply,
+    "/": divide
+}
+
+def safe_to_float(string : str):
+    result = ""
+
+    for symbol in string:
+        utf_code = ord(symbol)
+        if utf_code == 44 or utf_code == 46:
+            result += "." # it's . or ,
+            continue
+        if utf_code < 48 or utf_code > 57: # it's NOT a number 0 to 9
+            break
+        result += symbol # it's a number 0 to 9
+
+    if len(result) == 0:
+        return False
+    return int(result)
+
+def calculator():
+    num1 = safe_to_float(input("First number: "))
+    if not num1:
+        print(f'Error: your input is not a number!')
         return
-    
-    last_name = name
-    last_bid = price
-    
 
-while not bidding_finished:
-    print(f"current biggest bid is ${last_bid}")
-    name = input("(Leave blank to skip and end the auction)\nEnter your name: ").strip()
-    if len(name) < 1:
-        bidding_finished = True
-        continue
-    bid_with_name(name)
+    while True:
+        print("\nAvailable operators:")
+        print(", ".join(operators))
 
-    more = input("Are there other bidders? (yes/no): ").strip().lower()
-    if more == "no":
-        bidding_finished = True
-    else:
-        print("\n" * 33) # clear
+        op = input("Pick an operator: ")
+        calculation_function = operators.get(op)
 
-print(f'\nWinner is "{last_name}" with a bid of ${last_bid}!')
+        if not calculation_function:
+            print(f'Operator "{op}" does not exist. (Or isnt inmplemented here)')
+            break
+
+        num2 = safe_to_float(input("Next number: "))
+        if not num2:
+            print(f'Error: your input is not a number!')
+            return
+
+        result = calculation_function(num1, num2)
+
+        print(f"{num1} {op} {num2} = {result}")
+
+        again = input("Continue with result? (y/n): ").lower()
+        if again == "y":
+            num1 = result
+        else:
+            break
+
+while True:
+    calculator()
+    if input("\nStart calculator? (y/n): ").lower() == "n":
+        break

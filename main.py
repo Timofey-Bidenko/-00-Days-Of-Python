@@ -1,37 +1,18 @@
-cube = {
-    "size": 3,
-    "position": (0, 0, 0),
-    "color": "green",
-}
+# nice, we can document the functions and <strong> works just like in other languages!
 
-print(cube["size"]) # get
-cube["color"] = "blue" # set
-cube.pop("position") # delete entry
+def is_leap_year(year : int):
+    """
+    Returns whether the given <strong>year</strong> is leap or not
 
-for key in cube:
-    value = cube[key]
-    print(f'kv pair: ["{key}"] = {value}')
+    :param year: 
+    :type year: int
+    :return type: boolean
+    """
+    return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 
-for key, value in cube.items():
-    print(f'kv pair: ["{key}"] = {value}')
 
-students_scores = {
-    "Alice": 75,
-    "Bob": 63,
-    "Chris": 92,
-    "Diana": 48,
-}
-
-students_grades = {}
-
-for name, score in students_scores.items():
-    if score >= 90:
-        students_grades[name] = "Outstanding"
-    elif score >= 80:
-        students_grades[name] = "Exceeds Expectations"
-    elif score >= 70:
-        students_grades[name] = "Acceptable"
-    else:
-        students_grades[name] = "Fail"
-
-print(students_grades)
+# documentation can be read
+print(is_leap_year.__doc__)
+# it can be written too! Though it's just a silly test here, ofc no one dares touch __Keys in production
+is_leap_year.__doc__ = "Hello World!"
+print(is_leap_year.__doc__)
